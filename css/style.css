@@ -1,0 +1,21 @@
+
+/* Solid border */
+
+
+.titleHeader {
+  border-bottom: rgba(150, 171, 193, 0.12) 1px solid;
+  opacity: 1.0;
+  background: #0f0;
+}
+#titleId {
+	margin-top: 35px;
+	margin-bottom: 30px;
+}
+.mradio {
+	margin-top: 40px;
+	margin-right: 10px;
+}
+h3 {
+  border: #008ed6 3px solid;
+  opacity: 0.8;
+ }
