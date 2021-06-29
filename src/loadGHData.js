@@ -17,7 +17,7 @@ import {getGHIssueList,setGHIssueList,appendBugDetail} from './commonUtils.js';
     $('body').css('cursor', 'wait');
     import('https://cdn.skypack.dev/@octokit/core').then(({ default: octokit, Octokit}) => {
             async function getIssues() {
-               //const wOctokit = new Octokit({ auth: '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' });
+               //const wOctokit = new Octokit({ auth: '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s' });
                 const wOctokit = new Octokit();
                 var pageIncr=1;
                 var response = {};
