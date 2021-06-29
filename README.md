@@ -2,7 +2,7 @@
 Example GitHub Exercise
 
 * This exercise uses JQuery/JS to load React open issues using the GitHub API and Octokit module
-*
+
 * The project will download all data need to process searching of titles. Others (such as by label, by body, other and combination of these where left off due to timeboxing limits)
 
 * Current there are about 750 issues that are downloaded and processed, so there is a small wait time getting this data
