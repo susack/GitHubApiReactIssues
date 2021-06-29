@@ -1,5 +1,3 @@
-
-
 <html>
 <head>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
@@ -10,9 +8,6 @@
 
 </head>
 <body>
-
-
-
  <header id="hdr-section">
     <div class ="container">
         <div class="d-flex row">
@@ -45,7 +40,7 @@
                 </ul>
             </div>
     </div> 
-</header>
+  </header>
 
  <!-- BUG DETAIL SECTION -->
  <section id="bug-detail-section">
@@ -63,141 +58,9 @@
     crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+  <script src="./src/commonUtils.js" type="module" ></script>
+  <script src="./src/loadGHData.js" type="module" ></script>
+  <script src="./src/domUtils.js" type="module"></script>
 
-
-    <script>
-        // display only upto max list items in the UL list
-        const MAX_DISPLAY_LI_ITEMS = 1000;
-
-        // common function - append the bug detail to the dom, based on
-        // tab out of input box will generate all bug detail in the filtered list
-        // user clicks or uses enter key on any of the items in auto comp list
-        const appendBugDetail = (liItem) => {      
-        var di = $(liItem).attr('dataIdx');
-        var disp = $(liItem).css('display');
-        if (di && disp != 'none') {
-
-            console.log("foujnd index of -> " + di);
-            var labelStr="";
-            issues[di].labels.forEach((item) => labelStr += ' ' + item.name);
-            var htmlRow = '' +
-                        '<div class="bugEntry">' +
-                        '<h4 class="d-flex alert alert-warning">' +
-                                 issues[di].title + '</h4>' +
-                            '<div class="d-flex justify-content-start">' +                             
-                            '<div class="col-md-2 display-5"><b>State</b>: ' +
-                                issues[di].state + '</div>' +
-                            '<div class="col-md-4 display-5"><b>Created</b>: ' +
-                                    issues[di].created_at + '</div>' +
-                        '</div>' +
-                        '<div class="d-flex justify-content-start">' +                             
-                            '<div class="col-md-2"><div><b>Labels:</b></div>' +
-                                labelStr + '</div>' +
-                            '<div class="col-md-10">' +
-                                    issues[di].body + '</div>' +
-                        '</div>' +
-                        '</div>';
-
-                        $('#attachPoint').append(htmlRow);
-                    }
-        }
-
-
-    $( document ).ready(function() {
-
-        // using Octokit plugin to allow access to the github API using JS
-        // user gitHub token should normally be used but is commented out below so to avoid
-        // complications in running/having user obtain his/her own token. OPtimally this 
-        // would be done
-        $('body').css('cursor', 'wait');
-        import('https://cdn.skypack.dev/@octokit/core').then(({ default: octokit, Octokit}) => {
-                async function getIssues() {
-                   // const wOctokit = new Octokit({ auth: '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' });
-                    const wOctokit = new Octokit();
-                    var pageIncr=1;
-                    var response = {};
-                    
-                    do {
-                        try {
-                            response = await wOctokit.request("GET /repos/facebook/react/issues?page=" + pageIncr + "&per_page=100", {
-                              owner: "facebook",
-                              repo: "react",
-                            });
-                        }
-                        catch (error) {
-                            console.log('An error was returned  calling react github API!')
-                            console.log(error.message);
-                            return;
-                        }
-                       
-                        // capture all data returned from the multiple page calls. 
-                        // max per_page is 100 so this while loop will continue until
-                        // no response.data is found.
-                        issues = [...issues, ...response.data]; 
-                        pageIncr++;
-                    } while (response.data && response.data.length)
-
-                     $('body').css('cursor', 'default');
-                     const container = $("#listItem");
-                     // we do not want to overload the browser page so setting the limit
-                     // via const MAX_DISPLAY_LI_ITEMS to 1000, could be higher but did 
-                     // want introduce a paging mechansim to the code due to timeboxing
-                     var max = issues.length;
-                     if (issues.length > MAX_DISPLAY_LI_ITEMS) max=MAX_DISPLAY_LI_ITEMS;
-                     for (var i=0; i<max; i++) {
-                         // create/capture the issue [] index on each <li> so that bug
-                         // detail can be extracted when user tabs, clicks or hits enter
-                         // key
-                         var newLI = '<li class="myLItem" dataidx=' + i + '><a  href="#"  + >' + issues[i].title + '</a></li>';
-         
-                         // add all titles intially to the search input box              
-                          $(container).append(newLI);
-                     } 
-                     // add an li eventlistener up to MAX_DISPLAY_LI_ITEMS to the dom
-                     // to capture the enter key
-                     document.querySelectorAll('#listItem li').forEach((item) => {
-                            item.addEventListener('click', (e) => {
-                                if (e.which === 1) { // enter key
-                                     $('#attachPoint .bugEntry').remove();
-                                    appendBugDetail(e.currentTarget);
-                                }
-                            })
-                     });
-                
-                }
-
-             getIssues().catch(console.error.bind(console));
-        });
-    }); // end of $( document ).ready(function() {
-
-   
-    // array of objects used to hold all issue information which includes title, labels, 
-    // body, etc
-    var issues = [];
- 
-    $( window ).on( "load", function() {
-        console.log( "document loaded" ); 
-        // autocomplete filter function based on bootstrap4 and input field    
-        $("#listbox").on("keyup", function() {
-            var values = $(this).val().toLowerCase();
-            $("#listItem li").filter( function() { // auto complete filter
-                $(this).toggle($(this).text().toLowerCase().indexOf(values) > -1)
-            });
-        });
-        // user has tabbed out of the auto comp input box, for all filtered items generate
-        // the associated bug detail and attach to dom
-         $("#listbox").keydown(function(e) {
-            if (e.which == 9) { // tab
-                $('#attachPoint .bugEntry').remove();
-
-                 $("#listItem li").each(function(item) {
-                    appendBugDetail($(this));           
-                 });
-            }
-        
-        });
-      
-    }); //$( window ).on( "load", function() 
-    </script>
 </body>
 </html>
